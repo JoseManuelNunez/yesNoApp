@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:yes_no_app/domain/entities/message.dart';
+import 'package:yes_no_app/presentation/providers/chat_provider.dart';
 import 'package:yes_no_app/presentation/widgets/chat/her_message_bubble.dart';
 import 'package:yes_no_app/presentation/widgets/chat/my_message_bubble.dart';
 import 'package:yes_no_app/presentation/widgets/shared/nessage_field_box.dart';
@@ -27,6 +30,8 @@ class ChatScreen extends StatelessWidget {
 class _ChatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final chatProvier = context.watch<ChatProvider>();
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 10),
@@ -34,18 +39,22 @@ class _ChatView extends StatelessWidget {
           children: [
             Expanded(
                 child: ListView.builder(
-              itemCount: 100,
+                  controller: chatProvier.chatScrollController,
+              itemCount: chatProvier.messageList.length,
               itemBuilder: (context, index) {
-                return (index % 2 == 0)
-                    ? const HerMessageBubble()
-                    : const MyMessageBubble();
+                final message = chatProvier.messageList[index];
+
+                return (message.fromWho == FromWho.hers)
+                    ? HerMessageBubble(text: message.text, imageUrl: message.imageUrl!,)
+                    : MyMessageBubble(text: message.text,);
               },
             )),
-            MessageFieldBox()
+            MessageFieldBox(
+              onValue: chatProvier.sebdMessage,
+            )
           ],
         ),
       ),
     );
   }
 }
-
